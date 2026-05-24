@@ -63,8 +63,10 @@ services:
       - "443:443"
       - "443:443/udp"   # HTTP/3 (QUIC)
     environment:
-      DOMAIN: ${DOMAIN:-}
-      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+      # Default to :80 when DOMAIN is empty so Caddy always sees a valid
+      # site address. Hostname → HTTPS via Let's Encrypt; ":80" → plain HTTP.
+      - DOMAIN=${DOMAIN:-:80}
+      - ACME_EMAIL=${ACME_EMAIL:-admin@example.com}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

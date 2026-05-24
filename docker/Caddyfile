@@ -1,18 +1,17 @@
 # Stare reverse proxy.
 #
-# Two virtual hosts:
-#   1. {$DOMAIN} on 443  — production HTTPS, Let's Encrypt cert auto-issued
-#      by Caddy on first request.
-#   2. :80              — fallback for IP-based or pre-DNS access, plain HTTP.
+# A single site block keyed on {$DOMAIN}. Caddy auto-detects what to do:
+#   - If DOMAIN is a hostname (e.g. stare.legal), Caddy serves it over
+#     HTTPS with a Let's Encrypt cert issued on first request.
+#   - If DOMAIN starts with ":" (e.g. ":80"), Caddy serves plain HTTP
+#     on that port. docker-compose substitutes ":80" as the default
+#     when the operator has not set DOMAIN, so the proxy is usable
+#     immediately, before DNS or a domain exists.
 #
 # Routing:
-#   /api/*  → backend  (FastAPI)   — the /api prefix is stripped.
-#   *       → frontend (Streamlit) — websocket-friendly proxy for live reloads.
-#
-# Use Caddy environment-variable substitution. DOMAIN is read from
-# docker-compose's environment block; if it is unset, the {$DOMAIN}
-# block becomes the literal hostname "" which Caddy ignores, so only
-# the :80 fallback site is served.
+#   /api/*    → backend  (FastAPI)   — the /api prefix is stripped.
+#   /healthz  → backend /health      — convenience alias.
+#   *         → frontend (Streamlit) — websocket-friendly proxy.
 
 {
     email {$ACME_EMAIL}
@@ -20,7 +19,6 @@
     # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
-# ───────────────────────── 1. Production HTTPS ─────────────────────────
 {$DOMAIN} {
     encode zstd gzip
 
@@ -34,7 +32,7 @@
         }
     }
 
-    # Streamlit health endpoint (also reachable through the catch-all).
+    # Convenience alias for the backend health check.
     handle /healthz {
         reverse_proxy backend:8000
         rewrite * /health
@@ -58,30 +56,6 @@
         Referrer-Policy           "strict-origin-when-cross-origin"
         Permissions-Policy        "camera=(), microphone=(), geolocation=()"
         -Server
-    }
-
-    log {
-        output stdout
-        format console
-        level  INFO
-    }
-}
-
-# ───────────────────────── 2. Plain HTTP fallback ──────────────────────
-# Useful for the first few minutes after launch when DNS has not yet
-# propagated. Same routing as the HTTPS host above.
-:80 {
-    handle_path /api/* {
-        reverse_proxy backend:8000
-    }
-
-    handle /healthz {
-        reverse_proxy backend:8000
-        rewrite * /health
-    }
-
-    handle {
-        reverse_proxy frontend-app:8501
     }
 
     log {
