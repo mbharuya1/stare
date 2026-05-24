@@ -1,0 +1,86 @@
+{
+  "query": "What is the standard for qualified immunity?",
+  "classification": "legal_question",
+  "answer": "Qualified immunity shields government officials from civil liability so long as their conduct \"does not violate clearly established statutory or constitutional rights of which a reasonable person would have known.\" [Mullenix v. Luna, 577 U.S. 7 (2015)] (quoting Harlow v. Fitzgerald). The doctrine protects \"all but the plainly incompetent or those who knowingly violate the law.\" [Mullenix v. Luna, 577 U.S. 7 (2015)]\n\nWhen a defendant raises qualified immunity, courts must address two sequential questions. First, taken in the light most favorable to the plaintiff, do the facts show the officer's conduct violated a constitutional right? Second, if a violation could be made out, was that right \"clearly established\"? [Saucier v. Katz, 533 U.S. 194 (2001)] Both inquiries are resolved early in the proceedings, because qualified immunity is \"an entitlement not to stand trial.\" It is an immunity from suit, not merely a defense to liability. [Saucier v. Katz, 533 U.S. 194 (2001)]\n\nOn the \"clearly established\" prong, the inquiry must be undertaken in light of the specific context of the case, not as a broad general proposition. [Mullenix v. Luna, 577 U.S. 7 (2015)] The right must be sufficiently clear that every reasonable official would have understood that what he is doing violates that right, with existing precedent placing the question beyond debate.\n\nFinally, qualified immunity applies only to government officials, not to private parties. Its rationale of preserving the ability of officials to serve the public good does not transfer to private defendants. [Wyatt v. Cole, 504 U.S. 158 (1992)]",
+  "citations": [
+    {
+      "case_id": "2015-083",
+      "case_name": "Mullenix v. Luna",
+      "us_cite": "577 U.S. 7",
+      "decision_date": "2015-11-09",
+      "quoted_text": "The doctrine of qualified immunity shields officials from civil liability so long as their conduct does not violate clearly established statutory or constitutional rights of which a reasonable person would have known. A clearly established right is one that is sufficiently clear that every reasonable official would have understood that what he is doing violates that right."
+    },
+    {
+      "case_id": "2000-075",
+      "case_name": "Saucier v. Katz",
+      "us_cite": "533 U.S. 194",
+      "decision_date": "2001-06-18",
+      "quoted_text": "In a suit against an officer for an alleged violation of a constitutional right, the requisites of a qualified immunity defense must be considered in proper sequence. Where the defendant seeks qualified immunity, a ruling on that issue should be made early in the proceedings so that the costs and expenses of trial are avoided where the defense is dispositive."
+    },
+    {
+      "case_id": "1991-071",
+      "case_name": "Wyatt v. Cole",
+      "us_cite": "504 U.S. 158",
+      "decision_date": "1992-05-18",
+      "quoted_text": "Reviewing these concerns, we conclude that the rationales mandating qualified immunity for public officials are not applicable to private parties. Qualified immunity strikes a balance between compensating those who have been injured by official conduct and protecting government's ability to perform its traditional functions."
+    }
+  ],
+  "dropped_citations": [],
+  "retrieval": {
+    "chunks": [
+      {
+        "case_id": "1991-071",
+        "case_name": "Wyatt v. Cole",
+        "us_cite": "504 U.S. 158",
+        "decision_date": "1992-05-18",
+        "rerank_score": 0.9349,
+        "vector_similarity": 0.5524,
+        "text_excerpt": "Reviewing these concerns, we conclude that the rationales mandating qualified immunity for public officials are not applicable to private parties. Qualified immunity strikes a balance between compensating those who have been injured by official conduct and protecting government's ability to perform its traditional functions."
+      },
+      {
+        "case_id": "2015-083",
+        "case_name": "Mullenix v. Luna",
+        "us_cite": "577 U.S. 7",
+        "decision_date": "2015-11-09",
+        "rerank_score": 0.9128,
+        "vector_similarity": 0.6354,
+        "text_excerpt": "The doctrine of qualified immunity shields officials from civil liability so long as their conduct does not violate clearly established statutory or constitutional rights of which a reasonable person would have known. A clearly established right is one that is sufficiently clear that every reasonable official would have understood that what he is doing violates that right."
+      },
+      {
+        "case_id": "2000-075",
+        "case_name": "Saucier v. Katz",
+        "us_cite": "533 U.S. 194",
+        "decision_date": "2001-06-18",
+        "rerank_score": 0.8702,
+        "vector_similarity": 0.6342,
+        "text_excerpt": "Where the defendant seeks qualified immunity, a ruling on that issue should be made early in the proceedings so that the costs and expenses of trial are avoided where the defense is dispositive. Qualified immunity is an entitlement not to stand trial or face the other burdens of litigation."
+      },
+      {
+        "case_id": "2017-068",
+        "case_name": "District of Columbia v. Wesby",
+        "us_cite": "583 U.S. 48",
+        "decision_date": "2018-01-22",
+        "rerank_score": 0.8511,
+        "vector_similarity": 0.5963,
+        "text_excerpt": "The clearly established right must be defined with specificity. We have repeatedly told courts not to define clearly established law at a high level of generality. The dispositive question is whether the violative nature of the particular conduct is clearly established."
+      },
+      {
+        "case_id": "1991-051",
+        "case_name": "Burns v. Reed",
+        "us_cite": "500 U.S. 478",
+        "decision_date": "1991-05-30",
+        "rerank_score": 0.7892,
+        "vector_similarity": 0.6968,
+        "text_excerpt": "We have recognized that qualified immunity provides ample protection to all but the plainly incompetent or those who knowingly violate the law. The presumption is that qualified rather than absolute immunity is sufficient to protect government officials in the exercise of their duties."
+      }
+    ],
+    "max_rerank_score": 0.9349
+  },
+  "metadata": {
+    "latency_ms": 14823,
+    "model": "claude-sonnet-4-6",
+    "cost_estimate_usd": 0.02390,
+    "input_tokens": 5201,
+    "output_tokens": 553
+  }
+}
