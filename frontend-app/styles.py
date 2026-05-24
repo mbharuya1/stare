@@ -202,16 +202,28 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
     letter-spacing: 0.08em;
     margin-bottom: var(--s-3);
 }
+/*
+ * Sample-chip buttons. Colors are locked explicitly so iOS Safari's
+ * dark-mode interpretation cannot flip the text color while leaving
+ * the background dark (the failure mode was: navy bg + auto-darkened
+ * text = invisible chips on iPhones with dark mode enabled).
+ *
+ * Two selectors are kept in parallel for robustness:
+ *   1. .sample-question-button   — for any future custom-classed chip
+ *   2. button[data-testid="stBaseButton-secondary"]   — Streamlit 1.57 DOM
+ */
+.sample-question-button,
+button[data-testid="stBaseButton-secondary"],
 div[data-testid="column"] button[kind="secondary"],
 div[data-testid="column"] [data-testid="stBaseButton-secondary"] {
-    background: var(--paper) !important;
-    border: 1px solid var(--mist) !important;
-    color: var(--navy-800) !important;
+    background-color: #1a2540 !important;
+    color: #faf7f2 !important;
+    border: 1px solid #1a2540 !important;
     border-radius: 9999px !important;
     padding: var(--s-2) var(--s-4) !important;
     font-family: var(--font-body) !important;
     font-size: var(--t-sm) !important;
-    font-weight: 400 !important;
+    font-weight: 500 !important;
     height: auto !important;
     line-height: 1.4 !important;
     text-align: left !important;
@@ -220,10 +232,13 @@ div[data-testid="column"] [data-testid="stBaseButton-secondary"] {
     white-space: normal !important;
     min-height: 40px;
 }
+.sample-question-button:hover,
+button[data-testid="stBaseButton-secondary"]:hover,
 div[data-testid="column"] button[kind="secondary"]:hover,
 div[data-testid="column"] [data-testid="stBaseButton-secondary"]:hover {
-    background: white !important;
-    border-color: var(--navy-300) !important;
+    background-color: #2a3550 !important;
+    color: #faf7f2 !important;
+    border-color: #2a3550 !important;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md) !important;
 }

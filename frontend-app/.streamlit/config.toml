@@ -1,0 +1,17 @@
+# Streamlit runtime config. Pinning the theme to light prevents iOS
+# Safari (and any other browser honoring prefers-color-scheme) from
+# auto-flipping the app into a dark interpretation, which was breaking
+# readability on the sample-question chips.
+
+[theme]
+base = "light"
+backgroundColor = "#faf7f2"
+secondaryBackgroundColor = "#f0ebe2"
+textColor = "#1a2540"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+fileWatcherType = "none"
