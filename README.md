@@ -1,119 +1,148 @@
+<div align="center">
+
 # Stare
-### An agentic RAG system over US Supreme Court decisions
 
-> _Codename: legal-rag-scotus_
+**AI Law Assistant. Citation-grounded legal research, starting with the US Supreme Court.**
 
-**Stare** (rhymes with "starry") is short for *stare decisis*, the legal doctrine of precedent. It classifies your question, retrieves relevant precedent, and generates grounded answers with case citations.
+[Architecture](docs/architecture.md) · [Eval results](eval/results.md) · [Get in touch](mailto:mbharuya1@babson.edu)
 
-**Live demo:** [stare-scotus.streamlit.app](https://stare-scotus.streamlit.app)
+</div>
 
-![Stare answering a Fourth Amendment question](docs/demo.png)
+---
 
-## What it does
+## What Stare is
 
-Stare:
+Stare is an AI Law Assistant. You ask a legal question, and Stare returns an answer grounded in real case law, with every claim cited to the specific case and opinion it comes from. When the corpus does not support an answer, Stare refuses honestly instead of inventing one.
 
-- Classifies every question as legal, out of scope, or about the system before doing any work.
-- Retrieves the top-5 most relevant text chunks from a vector index of 100 SCOTUS opinions (ChromaDB + sentence-transformers).
-- Generates cited answers via Claude, with every claim linked to a specific case name in `[brackets]`.
-- Refuses gracefully when the question is out of scope, when no chunk is similar enough, or when the retrieved excerpts don't actually support an answer. It never invents law it can't ground.
+The platform launches with **Lawyer mode** (live now) and will expand to **Law Student mode** and **General User mode** in Q3 and Q4 2026.
 
-## Why it's interesting
+## Why this exists
 
-Most "RAG demos" go straight from query to retrieval to generation, treating every input as if it were on-topic. This project routes questions through a small **LangGraph state machine** that classifies first, then either retrieves and generates, refuses with a hardcoded out-of-scope response, or returns system-introspection info from ChromaDB metadata. The non-legal paths never call the LLM. The explicit refusal behavior matters disproportionately in legal AI: a system that hallucinates a citation is worse than one that says "I don't know."
+Most legal AI is built by engineers who do not understand the law, or by lawyers who do not understand the model. Stare is different. Every answer is grounded in real precedent. Every architectural decision is reviewed against both legal correctness and engineering reliability.
+
+## What works today (Lawyer mode)
+
+- **SCOTUS research** over 9,068 Supreme Court opinions from 1946 to 2025
+- **Citation-grounded answers** with every cited case verified against the corpus before it ships
+- **Honest refusal** when retrieval confidence is below threshold
+- **Multi-step agent** that classifies queries (legal, meta, out-of-scope, low-confidence) and routes accordingly
+- **Cross-encoder reranker** improving retrieval precision@5 from 0.625 to 0.875 (+25 percentage points)
+- **Citation verifier** that drops hallucinated case names before they reach the user
+
+## Data sources
+
+Stare's SCOTUS research capability is built on the most respected open legal datasets in the world:
+
+- **Caselaw Access Project** (Harvard Law School Library) — full-text opinions
+- **Supreme Court Database** (Penn State, originally Washington University in St. Louis) — structured case metadata
+- **Legal Information Institute** (Cornell Law School) — recent slip opinions
+
+## Measured results
+
+Evaluation on a 15-question legal research suite, comparing pipeline configurations with and without the reranker:
+
+| Metric | Without reranker | With reranker | Delta |
+| --- | --- | --- | --- |
+| Routing accuracy | 100% | 100% | — |
+| Precision@5 | 62.5% | **87.5%** | **+25 pp** |
+| Citation grounding | 100% | 100% | — |
+| Refusal accuracy | 100% | 100% | — |
+| Median latency | 9.2 s | 8.6 s | -0.6 s |
+
+Full eval methodology and per-question results in [eval/results.md](eval/results.md).
 
 ## Architecture
 
 ```
-START
-  │
-  ▼
-classify (Haiku)
-  ├─ legal_question ─► retrieve ─► check_relevance
-  │                                  ├─ similarity ≥ 0.5 ─► generate (Sonnet) ─► END
-  │                                  └─ similarity <  0.5 ─► low_confidence_response ─► END
-  ├─ meta_question  ─► meta_response (no API; reads ChromaDB) ─► END
-  └─ out_of_scope   ─► out_of_scope_response (hardcoded) ─► END
+User
+  ↓
+Next.js landing (AWS Amplify)
+  ↓
+Streamlit app (AWS EC2)
+  ↓ POST /query
+FastAPI backend (AWS EC2)
+  ↓
+LangGraph router → classify
+                 → retrieve (ChromaDB, top-20)
+                 → rerank (cross-encoder, top-5)
+                 → generate (Claude Sonnet 4.6)
+                 → verify (citation extractor)
+  ↓
+Cited answer with retrieved sources
 ```
 
-Two of seven nodes call the LLM (`classify`, `generate`); the other five are local. See `docs/architecture.md` for the rationale on node boundaries, prompts, chunking, embeddings, and threshold selection.
+## Tech stack
 
-## Stack
+**ML and retrieval:** PyTorch, Hugging Face Transformers, sentence-transformers, cross-encoder/ms-marco-MiniLM-L-6-v2, scikit-learn, ChromaDB
 
-- Language: Python 3.13
-- Orchestration: LangChain + LangGraph (state machine, conditional edges, additive `route_taken` reducer)
-- Vector store: ChromaDB (persistent, cosine distance)
-- Embeddings: sentence-transformers `all-MiniLM-L6-v2` (free, local, 384-dim)
-- LLM: Anthropic Claude. `claude-haiku-4-5` for classification (~$1/M input tokens), `claude-sonnet-4-5` for grounded generation
-- UI: Streamlit with custom CSS
-- Eval: custom programmatic harness, no LLM-as-judge
+**Agent and generation:** LangChain, LangGraph, Anthropic Claude Sonnet 4.6 and Haiku 4.5, LangSmith
 
-## Setup
+**Backend:** FastAPI, Python 3.11, MLflow
 
-To try Stare without installing anything, visit the [live demo](https://stare-scotus.streamlit.app). To run locally, follow the steps below.
+**Frontend:** Next.js 14, TypeScript, Tailwind CSS, Framer Motion, Streamlit
+
+**Infrastructure:** Docker, AWS (Amplify, EC2, S3, IAM, CloudWatch), GitHub Actions
+
+## Quickstart
 
 ```bash
-git clone https://github.com/mbharuya1/legal-rag-scotus.git
-cd legal-rag-scotus
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env  # then add your ANTHROPIC_API_KEY
+# Clone
+git clone https://github.com/mbharuya1/stare.git
+cd stare
 
-# Build the corpus and index (one-time, ~1 minute)
-python data/download_scotus.py     # samples 100 SCOTUS opinions from coastalcph/lex_glue
-python -m src.ingest                # chunks + embeds → ChromaDB at ./chroma_db/
+# Install backend dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
 
-# Run the app
-streamlit run app.py
+# Configure secrets
+cp backend/.env.example backend/.env
+# Edit backend/.env with your ANTHROPIC_API_KEY
+
+# Build the corpus and index (~25 minutes on a modern laptop)
+python -m backend.scripts.download_cap
+python -m backend.scripts.download_scdb
+python -m backend.scripts.build_corpus
+python -m backend.scripts.scrape_lii_recent
+python -m backend.scripts.build_index
+python -m backend.scripts.validate_corpus
+
+# Run the FastAPI backend (terminal 1)
+.venv/bin/uvicorn backend.app.main:app --reload --port 8000
+
+# Run the Streamlit app (terminal 2)
+cd frontend-app && ../.venv/bin/streamlit run app.py
 ```
 
-Optional smoke tests (require an `ANTHROPIC_API_KEY` with credits; each costs a fraction of a cent):
+The corpus and ChromaDB index are not committed because of their size.
 
-```bash
-python -m scripts.test_rag      # retrieval + generation, no agent
-python -m scripts.test_agent    # full LangGraph agent on 3 questions
-python -m src.evaluate          # 5-question evaluation suite, writes eval/results.md
-```
+## Roadmap
 
-## Evaluation
+**Lawyer mode** (active development):
+- SCOTUS research — live
+- Lower federal court opinions — planned
+- Federal and state statutes — planned
+- Federal regulations — planned
+- Federal agency guidance — planned
 
-5 hand-crafted test questions, each run once through `run_agent()`. All metrics are programmatic.
+**Law Student mode** (Q3 2026): case brief generation, IRAC drills, cold-call simulation, bar-exam practice
 
-| Metric | Value |
-|---|---|
-| Route classification accuracy | **100%** (5/5) |
-| Mean keyword overlap | **0.80** |
-| Mean top-1 similarity (legal Qs, n=3) | **0.641** |
-| Total cost | **$0.0220** |
+**General User mode** (Q4 2026): plain-English legal guidance for tenant rights, employment, consumer protection
 
-| ID | Expected route | Actual route | Match | Top-1 sim | KW overlap |
-|---|---|---|---|---|---|
-| `Q1_4A` | `legal_question` | `legal_question` | yes | 0.694 | 1.00 |
-| `Q2_1A` | `legal_question` | `legal_question` | yes | 0.694 | 1.00 |
-| `Q3_OOS` | `out_of_scope` | `out_of_scope` | yes | -- | 1.00 |
-| `Q4_META` | `meta_question` | `meta_question` | yes | -- | 1.00 |
-| `Q5_LowConf` | `legal_question` | `legal_question` | yes | 0.534 | 0.00 |
+## Team
 
-Q5 ("TikTok national security divestiture") is the most informative result. I expected its top-1 similarity to fall below the 0.5 threshold and trigger the retrieval-level refusal node. Actual similarity was **0.534**, narrowly above the threshold, so the agent proceeded to `generate`, where Claude's grounding rule caught the failure and emitted the fixed `"I don't have enough information in the provided cases"` sentence. Two layers of refusal saved the answer, but it argues the 0.5 threshold is hand-tuned and brittle; precision/recall on a held-out tuning set would be the right next step. Full per-question detail in `eval/results.md`.
+**Mabrok BHARUYA** — Founder.
 
-## Limitations
+Law degree from Université Paris-Panthéon-Assas, the top-ranked law school in France. Computer science degree from Sorbonne Université, France's top-ranked research university for sciences. Finishing an MSBA on the quantitative track at Babson College.
 
-- **Dataset bias.** Cases are sampled from `coastalcph/lex_glue`, which is sourced from CAP and effectively cuts off around 2009. No post-2020 jurisprudence (e.g. *Dobbs*, *West Virginia v. EPA*).
-- **Sample size.** Only 100 cases out of 7,800 in the source dataset, sampled with `random.Random(42)`. Coverage across topics is sparse.
-- The 0.5 similarity cutoff for `check_relevance` was set by inspection, not by held-out tuning. Q5 demonstrates the cost of getting it wrong by 0.034 in either direction.
-- The classifier runs on Haiku, not Sonnet. ~10x cheaper per token but weaker on edge cases. A legal-flavored out-of-scope question (`"What's the legal status of my pasta carbonara recipe?"`) could fool it.
-- **Embeddings not benchmarked.** `all-MiniLM-L6-v2` was chosen for cost and convenience. Stronger alternatives (BGE-large, Cohere embed-v3) are likely better on legal text but not measured here.
-- A few cases in the lex_glue dataset don't have a clean `Party v. Party` line at the top, so the case-name regex sometimes captured `Argued November 1, 1995` or returned an empty string. The chunk text is fine; only the displayed case label suffers.
-- This is a portfolio demonstration of the architecture, not a production legal research tool. Lawyers should not use this for actual legal research.
+Before Stare: built production AI systems at Venture Space in London (legal technology platform deployed to law firms) and at Assas Lab in Paris.
 
-## What I'd do next
+For hiring, partnerships, or press: **mbharuya1@babson.edu**
 
-- **Re-rank retrieved chunks** with Cohere `rerank-v3` or BGE-reranker. Bi-encoder retrieval is fast but coarse; a cross-encoder over the top-20 lifts precision without much added latency.
-- **Hybrid search.** Combine BM25 with the dense embeddings (weighted union or RRF). BM25 catches exact citation matches the embedding model often misses.
-- **Tune the similarity threshold on a held-out set** of 30 to 50 in-scope and out-of-scope queries. Pick the threshold that maximizes precision-recall area, not eyeball it.
-- **Expand the dataset and run RAGAS faithfulness/answer-relevancy.** Once the corpus is meaningful (1000+ recent opinions), an LLM-as-judge eval is worth the cost.
+## Disclaimer
 
-## Author
+Stare is a research and engineering project. Information provided by Stare is not legal advice. For specific legal matters, consult a licensed attorney.
 
-Mabrok Bharuya. [github.com/mbharuya1](https://github.com/mbharuya1) · [linkedin.com/in/ai-mabrok-bharuya](https://www.linkedin.com/in/ai-mabrok-bharuya)
+## License
+
+MIT
