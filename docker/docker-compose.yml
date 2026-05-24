@@ -1,0 +1,81 @@
+# Stare production stack. Run from the docker/ directory:
+#     docker compose up -d
+# or from the repo root:
+#     docker compose -f docker/docker-compose.yml up -d
+#
+# Reverse proxy (Caddy) terminates HTTPS at the edge. Backend + Streamlit
+# are reachable only through the proxy, never directly from the internet.
+
+name: stare
+
+services:
+  backend:
+    container_name: stare-backend
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    env_file:
+      - ../backend/.env
+    environment:
+      # Make in-container paths line up with the volume mount below.
+      CHROMA_PERSIST_DIR: /app/data/cached/chroma_db
+    volumes:
+      # Corpus + index are large and immutable at runtime; mount read-only.
+      - ../data:/app/data:ro
+    restart: unless-stopped
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  frontend-app:
+    container_name: stare-frontend
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend-app
+    environment:
+      STARE_BACKEND_URL: http://backend:8000
+      STARE_DEMO_MODE: "false"
+      NEXT_PUBLIC_LANDING_URL: ${LANDING_URL:-https://stare.legal}
+      STARE_GITHUB_URL: https://github.com/mbharuya1/stare
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    expose:
+      - "8501"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  caddy:
+    container_name: stare-caddy
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3 (QUIC)
+    environment:
+      DOMAIN: ${DOMAIN:-}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend-app
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+    name: stare-caddy-data
+  caddy_config:
+    name: stare-caddy-config

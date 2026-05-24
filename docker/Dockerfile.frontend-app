@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1.6
+# Stare Streamlit frontend. Slim image: only streamlit + httpx + pydantic.
+# All retrieval / generation / embedding runs in the backend container.
+#
+# Build context = repo root:
+#     docker build -f docker/Dockerfile.frontend-app -t stare-frontend .
+
+FROM python:3.11-slim AS base
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root user, matching backend's UID for predictable file ownership.
+RUN groupadd --system --gid 10001 stare \
+ && useradd  --system --uid 10001 --gid stare --home /app --shell /usr/sbin/nologin stare
+
+WORKDIR /app
+
+COPY frontend-app/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir -r /app/requirements.txt
+
+COPY frontend-app/ /app/
+
+# Streamlit writes config/credentials under $HOME; pin it to /app.
+ENV HOME=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    STARE_DEMO_MODE=false
+
+RUN chown -R stare:stare /app
+
+USER stare
+
+EXPOSE 8501
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl --fail --silent --show-error http://localhost:8501/_stcore/health || exit 1
+
+CMD ["streamlit", "run", "app.py", \
+     "--server.port", "8501", \
+     "--server.address", "0.0.0.0", \
+     "--server.headless", "true", \
+     "--server.fileWatcherType", "none", \
+     "--browser.gatherUsageStats", "false"]

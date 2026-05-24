@@ -1,0 +1,7 @@
+# Minimal deps for the Streamlit container. The backend deps live in
+# backend/requirements.txt and stay out of this image to keep it small
+# (no torch, no chromadb, no sentence-transformers).
+
+streamlit==1.57.0
+httpx>=0.27,<1.0
+pydantic>=2.6,<3.0

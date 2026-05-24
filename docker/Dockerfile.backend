@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1.6
+# Stare backend: FastAPI + LangGraph + ChromaDB + cross-encoder reranker.
+#
+# Build context = repo root.  Run from repo root:
+#     docker build -f docker/Dockerfile.backend -t stare-backend .
+# Or via compose:  docker compose -f docker/docker-compose.yml build backend
+
+FROM python:3.11-slim AS base
+
+# System deps for healthcheck (curl) plus build chain wheels.
+# We keep the runtime image lean: clean apt lists after install.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl ca-certificates build-essential git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root user (UID 10001 keeps us out of the host's UID range)
+RUN groupadd --system --gid 10001 stare \
+ && useradd  --system --uid 10001 --gid stare --home /app --shell /usr/sbin/nologin stare
+
+WORKDIR /app
+
+# Install Python deps first to maximize Docker layer-cache reuse.
+COPY backend/requirements.txt /app/backend/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir -r /app/backend/requirements.txt
+
+# Application code. data/ is normally mounted as a read-only volume at
+# runtime (see docker-compose.yml). We copy it too so the image is
+# self-contained if someone runs it without a volume.
+COPY backend/    /app/backend/
+COPY data/       /app/data/
+
+# Hugging Face + Chroma write caches under $HOME; keep them inside /app
+# so the non-root user has permission.
+ENV HF_HOME=/app/.cache/huggingface \
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers \
+    HOME=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN mkdir -p /app/.cache && chown -R stare:stare /app
+
+USER stare
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl --fail --silent --show-error http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
