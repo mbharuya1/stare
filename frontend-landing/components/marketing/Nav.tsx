@@ -38,7 +38,7 @@ export function Nav() {
             GitHub
             <ArrowUpRight size={14} strokeWidth={2} />
           </a>
-          <Button href={APP_URL} variant="primary" size="md" external className="ml-2">
+          <Button href={APP_URL} variant="primary" size="md" className="ml-2">
             Try Stare
           </Button>
         </nav>

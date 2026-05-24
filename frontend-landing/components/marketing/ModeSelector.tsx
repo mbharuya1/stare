@@ -163,8 +163,6 @@ export function ModeSelector() {
             const wrapperProps = isActive
               ? {
                   href: m.href,
-                  target: "_blank",
-                  rel: "noopener noreferrer",
                   onMouseEnter: () => setHovered(m.id),
                   whileHover: { y: -3 },
                   transition: { duration: 0.2, ease: "easeOut" },

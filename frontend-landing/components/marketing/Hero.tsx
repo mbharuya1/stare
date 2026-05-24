@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { APP_URL } from "@/lib/utils";
 
 function scrollToId(id: string) {
   if (typeof document === "undefined") return;
@@ -39,15 +40,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.25, ease: "easeOut" }}
           className="mt-14 flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
         >
-          <Button
-            href="#modes"
-            variant="primary"
-            size="lg"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToId("modes");
-            }}
-          >
+          <Button href={APP_URL} variant="primary" size="lg">
             Try Stare
           </Button>
           <Button
