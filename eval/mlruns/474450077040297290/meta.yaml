@@ -1,0 +1,8 @@
+artifact_location: file:///Users/mabrok/Desktop/legal-rag-scotus-v2/eval/mlruns/474450077040297290
+creation_time: 1779591196925
+experiment_id: '474450077040297290'
+last_update_time: 1779591196925
+lifecycle_stage: active
+name: stare-eval
+trace_location: null
+workspace: default

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "Q1_4A",
+    "question": "What did the Supreme Court rule about warrantless searches and probable cause?",
+    "expected_route": "legal_question",
+    "expected_answer_keywords": ["warrant", "search", "Fourth Amendment"],
+    "notes": "Fourth Amendment retrieval — should pull cases like Powell v. Nevada, generate cited answer."
+  },
+  {
+    "id": "Q2_1A",
+    "question": "What standard does the Court apply to determine if speech is protected by the First Amendment?",
+    "expected_route": "legal_question",
+    "expected_answer_keywords": ["speech", "First Amendment", "protected"],
+    "notes": "First Amendment retrieval — higher-level doctrinal question, full generate path."
+  },
+  {
+    "id": "Q3_OOS",
+    "question": "What's a good recipe for pasta carbonara?",
+    "expected_route": "out_of_scope",
+    "expected_answer_keywords": ["Supreme Court", "decisions", "collection"],
+    "notes": "Out-of-scope — agent should classify and refuse, no API call beyond Haiku classify."
+  },
+  {
+    "id": "Q4_META",
+    "question": "What data do you have access to?",
+    "expected_route": "meta_question",
+    "expected_answer_keywords": ["100", "Supreme Court", "cases"],
+    "notes": "Meta question — should route to ChromaDB stats summary, no Sonnet call."
+  },
+  {
+    "id": "Q5_LowConf",
+    "question": "What did the Supreme Court rule about TikTok's national security divestiture?",
+    "expected_route": "legal_question",
+    "expected_answer_keywords": ["similarity", "threshold", "match"],
+    "notes": "Legal phrasing but no plausible match in our 1817–2009 sample. Should classify as legal but trigger low_confidence_response (top-1 similarity < 0.5)."
+  }
+]

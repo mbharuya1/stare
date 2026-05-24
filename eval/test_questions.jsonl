@@ -1,0 +1,15 @@
+{"id": "legal-01", "question": "What is the standard for qualified immunity for police officers?", "expected_classification": "legal_question", "expected_case_names": ["Saucier v. Katz", "Pearson v. Callahan", "Mullenix"], "expected_behavior": "answer"}
+{"id": "legal-02", "question": "What did Brown v. Board of Education hold about segregation in public schools?", "expected_classification": "legal_question", "expected_case_names": ["Brown v. Board"], "expected_behavior": "answer"}
+{"id": "legal-03", "question": "When can the police search a vehicle without a warrant?", "expected_classification": "legal_question", "expected_case_names": ["Carroll", "Acevedo", "Gant", "Houghton"], "expected_behavior": "answer"}
+{"id": "legal-04", "question": "What rights must police read to a suspect under Miranda?", "expected_classification": "legal_question", "expected_case_names": ["Miranda v. Arizona", "Dickerson"], "expected_behavior": "answer"}
+{"id": "legal-05", "question": "Did the Supreme Court establish a right to same-sex marriage?", "expected_classification": "legal_question", "expected_case_names": ["Obergefell", "Windsor"], "expected_behavior": "answer"}
+{"id": "legal-06", "question": "What is the constitutional test for obscenity in First Amendment cases?", "expected_classification": "legal_question", "expected_case_names": ["Miller v. California", "Roth"], "expected_behavior": "answer"}
+{"id": "legal-07", "question": "What does the Sixth Amendment require regarding right to counsel?", "expected_classification": "legal_question", "expected_case_names": ["Gideon", "Strickland", "Argersinger"], "expected_behavior": "answer"}
+{"id": "legal-08", "question": "How does the Supreme Court treat race-based affirmative action in university admissions?", "expected_classification": "legal_question", "expected_case_names": ["Bakke", "Grutter", "STUDENTS FOR FAIR ADMISSIONS"], "expected_behavior": "answer"}
+{"id": "oos-01",   "question": "What's the capital of France?", "expected_classification": "out_of_scope", "expected_behavior": "refuse"}
+{"id": "oos-02",   "question": "How do I cook pasta?", "expected_classification": "out_of_scope", "expected_behavior": "refuse"}
+{"id": "oos-03",   "question": "Write me a Python function that reverses a string.", "expected_classification": "out_of_scope", "expected_behavior": "refuse"}
+{"id": "meta-01",  "question": "How many cases do you have access to?", "expected_classification": "meta_question", "expected_behavior": "meta_response"}
+{"id": "meta-02",  "question": "What years does your case law data cover?", "expected_classification": "meta_question", "expected_behavior": "meta_response"}
+{"id": "low-01",   "question": "What did the Supreme Court of the Cayman Islands hold about beneficial ownership disclosure under the 2024 Companies Act amendments?", "expected_classification": "out_of_scope", "expected_behavior": "refuse"}
+{"id": "low-02",   "question": "What's the 2024 IRS standard deduction for a single filer?", "expected_classification": "out_of_scope", "expected_behavior": "refuse"}

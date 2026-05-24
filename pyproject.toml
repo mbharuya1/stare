@@ -1,0 +1,25 @@
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+exclude = [
+    "venv",
+    ".venv",
+    "chroma_db",
+    "data/scotus_cases",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]   # pycodestyle, pyflakes, isort
+ignore = [
+    "E501",  # line-too-long — formatter's job, not lint's
+]
+
+[tool.pytest.ini_options]
+# Repo root sits on sys.path so `from backend.app...` imports work
+# whether pytest is run from the repo root or from backend/.
+pythonpath = ["."]
+testpaths = ["backend/tests"]
+# Skip the legacy CLI smoke scripts in backend/scripts/ — they're named
+# test_*.py but are entrypoints, not pytest tests.
+addopts = "--ignore=backend/scripts --ignore=scripts"
+norecursedirs = ["scripts", "backend/scripts", ".venv", "data"]

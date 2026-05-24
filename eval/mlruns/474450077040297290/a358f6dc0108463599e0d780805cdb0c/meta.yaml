@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/mabrok/Desktop/legal-rag-scotus-v2/eval/mlruns/474450077040297290/a358f6dc0108463599e0d780805cdb0c/artifacts
+end_time: 1779591456396
+entry_point_name: ''
+experiment_id: '474450077040297290'
+lifecycle_stage: active
+run_id: a358f6dc0108463599e0d780805cdb0c
+run_name: eval-norr-20260523-225556
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779591356928
+status: 3
+tags: []
+user_id: mabrok

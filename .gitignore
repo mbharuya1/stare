@@ -1,0 +1,55 @@
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Environment variables / secrets
+.env
+.env.local
+*.env
+
+# Python bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Project data (large / generated / private)
+data/raw/
+data/processed/
+data/cached/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/cached/.gitkeep
+chroma_db/
+query_log.jsonl
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Claude Code session metadata
+.claude/
+
+# Logs
+*.log
+logs/
