@@ -25,11 +25,11 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# Application code. data/ is normally mounted as a read-only volume at
-# runtime (see docker-compose.yml). We copy it too so the image is
-# self-contained if someone runs it without a volume.
+# Application code. data/ is mounted as a read-only volume at runtime
+# (see docker-compose.yml) — NOT baked into the image. Baking ~2 GB of
+# corpus + Chroma index pushed the image past EC2 t3.small's disk
+# budget and produced "no space left on device" during build.
 COPY backend/    /app/backend/
-COPY data/       /app/data/
 
 # Hugging Face + Chroma write caches under $HOME; keep them inside /app
 # so the non-root user has permission.
@@ -39,7 +39,9 @@ ENV HF_HOME=/app/.cache/huggingface \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN mkdir -p /app/.cache && chown -R stare:stare /app
+# Create the directories the volume mount will target so they have
+# the right ownership even if the host volume is missing or empty.
+RUN mkdir -p /app/.cache /app/data && chown -R stare:stare /app
 
 USER stare
 
