@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { APP_URL, GITHUB_URL } from "@/lib/utils";
+import { GITHUB_URL } from "@/lib/utils";
 
 export function Nav() {
   return (
@@ -38,7 +38,7 @@ export function Nav() {
             GitHub
             <ArrowUpRight size={14} strokeWidth={2} />
           </a>
-          <Button href={APP_URL} variant="primary" size="md" className="ml-2">
+          <Button href="#modes" variant="primary" size="md" className="ml-2">
             Try Stare
           </Button>
         </nav>
